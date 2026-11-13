@@ -20,7 +20,7 @@ import { StatsPanel, ResultDialog, HistoryPanel } from "../features/results";
 import { formatTime } from "../shared/math";
 import { useAudio } from "./useAudio";
 export function App() {
-  const { game, input, start, toggle, choose, restart } = useGame();
+  const { game, input, start, toggle, choose, restart, toggleMovement } = useGame();
   const d = game.current;
   const [history, setHistory] = useState(false);
   const [help, setHelp] = useState(false);
@@ -170,7 +170,7 @@ export function App() {
                     <button className="primary" onClick={start}>
                       开始行动 <ArrowUpRight size={17} />
                     </button>
-                    <small>W A S D 移动 · ESC 暂停</small>
+                    <small>W A S D 移动 · SHIFT / 空格冲刺 · M 切换移动方式 · ESC 暂停</small>
                   </div>
                 </div>
               )}
@@ -201,6 +201,17 @@ export function App() {
                 <kbd>S</kbd>
                 <kbd>D</kbd> 移动
               </span>
+              <span>
+                <kbd>SHIFT</kbd>
+                <kbd>空格</kbd> 冲刺
+              </span>
+              <button
+                className="mode-toggle"
+                onClick={toggleMovement}
+                title="切换移动方式（保留位置并清除惯性）"
+              >
+                {d.player.movement === "inertia" ? "惯性机动" : "经典移动"} · 按 <kbd>M</kbd> 切换
+              </button>
               <span>
                 <kbd>ESC</kbd> 暂停
               </span>
@@ -244,6 +255,11 @@ export function App() {
             <p>
               WASD /
               方向键移动，武器自动瞄准最近的敌人。按住鼠标可改为指向射击。
+            </p>
+            <p>
+              默认「惯性机动」带加速度与惯性，按 SHIFT
+              或空格向当前移动方向冲刺，冲刺路径会做连续弹幕碰撞，可穿过弹幕规避攻击；撞墙会截断冲刺并按剩余时间返还冷却。按
+              M 可随时切回无惯性的「经典移动」，切换时保留位置并清除惯性。
             </p>
             <p>
               击败敌人会掉落绿色经验晶体。靠近自动拾取；粉色修复机体，蓝色磁铁吸取全场晶体。

@@ -12,7 +12,8 @@ function isRecord(value: unknown): value is RunRecord {
     ) &&
     Array.isArray(r.weapons) &&
     r.weapons.every((w) => typeof w === "string") &&
-    typeof r.victory === "boolean"
+    typeof r.victory === "boolean" &&
+    (r.dodged === undefined || typeof r.dodged === "number")
   );
 }
 export function loadRecords(): RunRecord[] {

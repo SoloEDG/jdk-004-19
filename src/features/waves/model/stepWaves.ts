@@ -52,6 +52,7 @@ export function stepWaves(doc: GameDoc, dt: number): void {
           weapon: "enemy",
           pierce: 0,
           hit: [],
+          dodged: false,
         });
       }
     }

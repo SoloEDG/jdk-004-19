@@ -26,6 +26,14 @@ export function StatsPanel({ doc }: { doc: GameDoc }) {
         <span>已受伤害</span>
         <strong className="mono">{Math.round(doc.stats.taken)}</strong>
       </div>
+      <div className="stat-row">
+        <span>冲刺次数</span>
+        <strong className="mono">{doc.stats.dashes}</strong>
+      </div>
+      <div className="stat-row">
+        <span>规避攻击</span>
+        <strong className="mono">{doc.stats.dodged}</strong>
+      </div>
     </section>
   );
 }

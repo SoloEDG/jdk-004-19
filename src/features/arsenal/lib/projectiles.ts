@@ -21,6 +21,7 @@ export function fire(
     weapon,
     pierce,
     hit: [],
+    dodged: false,
   });
 }
 export function nearestTarget(doc: GameDoc): Vec | undefined {

@@ -1,8 +1,9 @@
 import type { GameDoc, Input, FrameEvents } from "../../../shared/types";
 import { WIDTH, HEIGHT } from "../../../shared/types";
-import { clamp, distance, normalize } from "../../../shared/math";
-import { segmentDistance } from "../lib/collision";
+import { distance } from "../../../shared/math";
+import { segmentDistance, segmentToSegmentDistance } from "../lib/collision";
 import { hurtPlayer } from "./health";
+import { stepMovement } from "./movement";
 export function stepCombat(
   doc: GameDoc,
   input: Input,
@@ -14,22 +15,19 @@ export function stepCombat(
     taken: 0,
     shots: 0,
     collected: 0,
+    dashes: 0,
+    dodged: 0,
     weaponDamage: {},
   };
   const player = doc.player;
   player.invincible = Math.max(0, player.invincible - dt);
-  const direction = normalize(input.x, input.y),
-    strength = Math.min(1, Math.hypot(input.x, input.y));
-  player.x = clamp(
-    player.x + direction.x * strength * player.speed * dt,
-    player.radius,
-    WIDTH - player.radius,
-  );
-  player.y = clamp(
-    player.y + direction.y * strength * player.speed * dt,
-    player.radius,
-    HEIGHT - player.radius,
-  );
+
+  // 机动（惯性 / 冲刺 / 经典移动）统一在这里结算，返回完整位移轨迹。
+  const move = stepMovement(doc, input, dt);
+  events.dashes = move.dashStarted;
+  const playerFrom = move.from;
+  const playerTo = { x: player.x, y: player.y };
+
   for (const bullet of doc.bullets) {
     const previous = { x: bullet.x, y: bullet.y };
     bullet.x += bullet.vx * dt;
@@ -37,12 +35,24 @@ export function stepCombat(
     bullet.life -= dt;
     if (bullet.life < 0) continue;
     if (bullet.owner === "enemy") {
-      if (
-        segmentDistance(player, previous, bullet) <
-        player.radius + bullet.radius
-      ) {
+      // 连续轨迹碰撞：检查整条角色路径与整条弹幕路径，而非仅帧末位置。
+      const hit =
+        segmentToSegmentDistance(playerFrom, playerTo, previous, bullet) <
+        player.radius + bullet.radius;
+      if (hit) {
         events.taken += hurtPlayer(doc, bullet.damage);
         bullet.life = -1;
+        continue;
+      }
+      // 冲刺及其判定窗口内，若“不冲刺的虚拟位置”本会被命中，则记为规避的有效攻击。
+      if (
+        move.ghost &&
+        !bullet.dodged &&
+        segmentDistance(move.ghost, previous, bullet) <
+          player.radius + bullet.radius
+      ) {
+        bullet.dodged = true;
+        events.dodged++;
       }
       continue;
     }

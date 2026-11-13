@@ -1,12 +1,24 @@
 export type Vec = { x: number; y: number };
 export type Phase = "ready" | "playing" | "paused" | "upgrade" | "ended";
 export type WeaponId = "pulse" | "orbit" | "nova";
+export type MovementMode = "classic" | "inertia";
 export interface Player extends Vec {
   hp: number;
   maxHp: number;
   speed: number;
   radius: number;
   invincible: number;
+  vx: number;
+  vy: number;
+  movement: MovementMode;
+  dashTime: number;
+  dashCooldown: number;
+  dashDirx: number;
+  dashDiry: number;
+  dodgeWindow: number;
+  ghostX: number;
+  ghostY: number;
+  trail: Vec[];
 }
 export interface Enemy extends Vec {
   id: number;
@@ -27,6 +39,7 @@ export interface Bullet extends Vec {
   weapon: WeaponId | "enemy";
   pierce: number;
   hit: number[];
+  dodged: boolean;
 }
 export interface Drop extends Vec {
   id: number;
@@ -52,6 +65,8 @@ export interface RunStats {
   taken: number;
   collected: number;
   shots: number;
+  dashes: number;
+  dodged: number;
   byWeapon: Record<WeaponId, number>;
 }
 export interface RunRecord {
@@ -61,6 +76,7 @@ export interface RunRecord {
   level: number;
   kills: number;
   damage: number;
+  dodged: number;
   weapons: string[];
   victory: boolean;
 }
@@ -94,6 +110,7 @@ export interface Input {
   y: number;
   aim: Vec;
   firing: boolean;
+  dash: boolean;
 }
 export interface KillEvent {
   enemy: Enemy;
@@ -106,6 +123,8 @@ export interface FrameEvents {
   taken: number;
   shots: number;
   collected: number;
+  dashes: number;
+  dodged: number;
 }
 export const WIDTH = 1000;
 export const HEIGHT = 650;

@@ -450,6 +450,29 @@ kbd {
   font-size: 8px;
   color: #809f8b;
 }
+.mode-toggle {
+  border: 1px solid #303946;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 9px;
+  color: #afbbc7;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.mode-toggle:hover {
+  background: #19222c;
+  color: #c5f6d0;
+}
+.upgrade-preview {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 14px;
+  font-size: 9px;
+  color: #8fae9c;
+  letter-spacing: 0.5px;
+}
 .weapons {
   margin-top: 18px;
   display: flex;

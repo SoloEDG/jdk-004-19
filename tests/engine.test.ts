@@ -7,13 +7,15 @@ import { stepArsenal } from "../src/features/arsenal";
 import { stepProgression, chooseUpgrade } from "../src/features/progression";
 import { stepResults } from "../src/features/results";
 import type { FrameEvents } from "../src/shared/types";
-const input = { x: 0, y: 0, aim: { x: 700, y: 325 }, firing: false };
+const input = { x: 0, y: 0, aim: { x: 700, y: 325 }, firing: false, dash: false };
 const events = (): FrameEvents => ({
   kills: [],
   damage: 0,
   taken: 0,
   shots: 0,
   collected: 0,
+  dashes: 0,
+  dodged: 0,
 });
 const enemy = (id = 1) => ({
   id,
@@ -48,6 +50,7 @@ test("collision kills once, reports actual damage and prevents duplicate piercin
       weapon: "pulse",
       pierce: 2,
       hit: [],
+      dodged: false,
     },
   ];
   const e = stepCombat(d, input, 0);
@@ -109,6 +112,7 @@ test("weapon damage includes nonlethal hits and ignores overkill", () => {
       weapon: "pulse",
       pierce: 0,
       hit: [],
+      dodged: false,
     },
   ];
   const e = stepCombat(d, input, 0);

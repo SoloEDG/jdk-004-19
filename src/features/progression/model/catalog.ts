@@ -29,6 +29,13 @@ export const UPGRADE_CATALOG: Upgrade[] = [
     max: 4,
   },
   {
+    id: "agility",
+    name: "机动核心",
+    description: "惯性加速度 +18%，冲刺冷却恢复 +15%",
+    category: "机动",
+    max: 4,
+  },
+  {
     id: "vitality",
     name: "生命扩容",
     description: "生命上限 +20，并回复 20",

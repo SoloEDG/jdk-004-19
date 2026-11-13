@@ -1,5 +1,6 @@
 import type { GameDoc } from "../../../shared/types";
 import { WIDTH, HEIGHT } from "../../../shared/types";
+import { DASH_COOLDOWN, DASH_DURATION } from "../model/movement";
 export function renderScene(ctx: CanvasRenderingContext2D, d: GameDoc) {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
   ctx.fillStyle = "#0a1019";
@@ -91,6 +92,19 @@ export function renderScene(ctx: CanvasRenderingContext2D, d: GameDoc) {
   }
   ctx.shadowBlur = 0;
   const p = d.player;
+  // 冲刺残影：沿最近的机动轨迹绘制逐渐淡出的航迹。
+  if (p.trail.length > 1) {
+    for (let i = 0; i < p.trail.length; i++) {
+      const point = p.trail[i];
+      const alpha = (i / p.trail.length) * 0.4;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.dashTime > 0 ? "#9fe8ff" : "#7fd9a6";
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, p.radius * (0.4 + (i / p.trail.length) * 0.5), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.strokeStyle = "#9eeeb3";
@@ -98,6 +112,27 @@ export function renderScene(ctx: CanvasRenderingContext2D, d: GameDoc) {
   ctx.beginPath();
   ctx.arc(0, 0, 24, 0, Math.PI * 2);
   ctx.stroke();
+  // 冲刺冷却环：冷却中显示剩余比例，冲刺中显示满环高亮。
+  if (p.dashTime > 0) {
+    ctx.strokeStyle = "#9fe8ff";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, 28, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * p.dashTime) / DASH_DURATION);
+    ctx.stroke();
+  } else if (p.dashCooldown > 0) {
+    const ready = 1 - p.dashCooldown / DASH_COOLDOWN;
+    ctx.strokeStyle = "#4f7d8f";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 28, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * ready);
+    ctx.stroke();
+  } else {
+    ctx.strokeStyle = "#bfefff";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, 28, 0, Math.PI * 2);
+    ctx.stroke();
+  }
   ctx.globalAlpha = p.invincible > 0 ? 0.45 : 1;
   ctx.shadowColor = "#a9ffd7";
   ctx.shadowBlur = 24;

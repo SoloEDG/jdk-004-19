@@ -31,6 +31,13 @@ export function UpgradeDialog({
         <small className="muted">
           武器与被动升级可叠加 · 同时获得多个等级会依次选择
         </small>
+        <div className="upgrade-preview mono">
+          <span>冲刺 {doc.stats.dashes}</span>
+          <span>已规避有效攻击 {doc.stats.dodged}</span>
+          <span>
+            冲刺冷却 {doc.player.dashCooldown > 0 ? doc.player.dashCooldown.toFixed(1) + "s" : "就绪"}
+          </span>
+        </div>
       </div>
     </div>
   );

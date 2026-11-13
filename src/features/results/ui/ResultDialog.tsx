@@ -25,11 +25,19 @@ export function ResultDialog({
             <small>击败敌人</small>
           </div>
           <div>
-            <strong>{doc.level}</strong>
-            <small>最终等级</small>
+            <strong>{doc.stats.dodged}</strong>
+            <small>冲刺规避攻击</small>
           </div>
         </div>
         <div className="damage-breakdown">
+          <div>
+            <span>冲刺次数</span>
+            <span>{doc.stats.dashes} DASH</span>
+          </div>
+          <div>
+            <span>规避的有效攻击</span>
+            <span>{doc.stats.dodged} DODGE</span>
+          </div>
           {Object.entries(doc.stats.byWeapon).map(([key, value]) => (
             <div key={key}>
               <span>{key.toUpperCase()}</span>

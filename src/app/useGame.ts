@@ -3,6 +3,7 @@ import { createRun } from "../shared/createRun";
 import type { Input } from "../shared/types";
 import { simulate } from "./simulate";
 import { chooseUpgrade } from "../features/progression";
+import { setMovementMode } from "../features/combat/model/movement";
 import { loadRecords, saveRecords } from "../features/results";
 export function useGame() {
   const game = useRef(createRun(204004, loadRecords()));
@@ -11,6 +12,7 @@ export function useGame() {
     y: 0,
     aim: { x: 500, y: 0 },
     firing: false,
+    dash: false,
   });
   const keys = useRef(new Set<string>());
   const [, render] = useState(0);
@@ -33,13 +35,18 @@ export function useGame() {
         acc += elapsed;
         while (acc >= 1 / 60) {
           simulate(d, input.current, 1 / 60);
+          // 冲刺为边沿触发，一个按键脉冲只作用于一个模拟步。
+          input.current.dash = false;
           acc -= 1 / 60;
           if (d.phase !== "playing") {
             acc = 0;
             break;
           }
         }
-      } else acc = 0;
+      } else {
+        acc = 0;
+        input.current.dash = false;
+      }
       if (now - paint > 32) {
         render((n) => n + 1);
         paint = now;
@@ -58,6 +65,12 @@ export function useGame() {
       if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(k))
         e.preventDefault();
       keys.current.add(k);
+      if (!e.repeat && (k === "shift" || k === " "))
+        input.current.dash = true;
+      if (!e.repeat && k === "m") {
+        const d = game.current;
+        setMovementMode(d, d.player.movement === "inertia" ? "classic" : "inertia");
+      }
       if ((k === "escape" || k === "p") && !e.repeat) {
         const d = game.current;
         if (d.phase === "playing") d.phase = "paused";
@@ -91,11 +104,19 @@ export function useGame() {
       if (d.phase === "playing") d.phase = "paused";
       else if (d.phase === "paused") d.phase = "playing";
     },
+    toggleMovement: () => {
+      const d = game.current;
+      setMovementMode(
+        d,
+        d.player.movement === "inertia" ? "classic" : "inertia",
+      );
+    },
     choose: (id: string) => chooseUpgrade(game.current, id),
     restart: () => {
       saveRecords(game.current.records);
       game.current = createRun(204004, game.current.records);
       keys.current.clear();
+      input.current.dash = false;
       game.current.phase = "playing";
     },
   };
